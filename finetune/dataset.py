@@ -78,8 +78,8 @@ class SupervisedDataset(Dataset):
                 tgt_sizes=ret["tgt_sizes"],
                 image_bound=ret["image_bound"],
             )
-        except:
-            logger.error(f"data fetch error")
+        except Exception as e:
+            logger.error(f"data fetch error,{e}")
             return self.__getitem__(random.randint(0, len(self)))
         return ret
 
@@ -214,8 +214,9 @@ def conversation_to_ids_minicpm(conversation, tokenizer):
         prefix_ids = tokenizer.encode(prefix)[1:]  # remove bos
         message_ids = tokenizer.encode(message)[1:]
 
-        input_ids.append(prefix_ids)
-        input_ids.append(message_ids)
+        # input_ids.append(prefix_ids)
+        # input_ids.append(message_ids)
+        input_ids = prefix_ids + message_ids
 
         context.append(np.ones((len(prefix_ids),), dtype=np.int8))
         if role == "assistant":
@@ -224,6 +225,10 @@ def conversation_to_ids_minicpm(conversation, tokenizer):
             context.append(np.ones((len(message_ids),), dtype=np.int8))
 
         raw_msg += prefix + message
+
+    input_ids = np.array(input_ids)
+    input_ids = np.hstack(input_ids)
+    context = np.hstack(context)
 
     return input_ids, context, raw_msg
 

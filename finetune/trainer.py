@@ -10,7 +10,7 @@ from transformers.integrations import is_deepspeed_zero3_enabled
 
 
 class CPMTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
         if "labels" in inputs:
             labels = inputs.pop("labels")
         else:
@@ -170,7 +170,7 @@ class CPMTrainer(Trainer):
 
         return (loss, logits, labels)
         
-    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
+    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], num_items_in_batch = None) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 
